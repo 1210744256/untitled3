@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+mvc的处理流程：当一个浏览器的一个请求到达服务器:如http://localhost:8080/hello,
+1. 服务器会准备一个DispatcherServlet:路径:默认路径是/,也就是会匹配所有的url请求，可作为请求的统一入口，被成为前控制器
+     创建：boot中有DispatcherServletAutoConfiguration这个自动配置类来提供DispatcherServlet的bean，它内部也有DispatcherServletRegistry的bean
+     初始化：如果没有设置LoadOnStartup,DispatcherServlet会在第一次请求时创建，设置了之后会在tomcat启动后初始化
+            DispatcherServlet会现在容器中找它的各个组件作为它的成员变量：
+                      HandlerMapping 路径映射器，将路径和控制器方法封装起来
+                      HandlerAdapter适配器 调用Handler，初始化时会准备参数解析器，返回值处理器，消息转换器
+                      HandlerExceptionResolver异常处理器,初始化时会准备参数解析器，返回值处理器，消息转换器
+                      ViewResolver视图解析器
+  2.DispatcherServlet会根据HandlerMapping进行路径匹配，找到对应的控制器方法
+    控制器会封装为HandlerMethod对象，并结合匹配到的拦截器一起返回给DispatcherServlet
+    HandlerMethod和拦截器合在一起被称为HandlerExecutionChain(调用链)对象
+  3.DispatcherServlet接下来会:
+        1.调用拦截器的preHandle方法
+        2.RequestMappingHandlerAdapter调用handle方法，会准备数据绑定工厂，数据模型工厂，
+          将HandlerMethod完善为ServletInvocableHandlerMethod
+           - ControllerAdvice增强1：补充模型数据
+           - ControllerAdvice增强2：补充自定义类型转换器
+            -ControllerAdvice增强3：请求体和响应体增强
+        -使用HandlerMethodArgumentResolver解析参数
+        -反射调用invoke方法
+        -使用HandlerMethodReturnValueHandler处理返回值
+            -如果返回的modelandview为null不走视图解析和渲染流程
+
+       3调用拦截器的postHandle方法
+        4如果出现异常，走ExceptionHandlerExceptionResolver处理异常流程
+       5调用拦截器的afterCompletion方法
+
+</body>
+</html>

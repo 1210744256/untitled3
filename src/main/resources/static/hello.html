@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>你好呀hello</h1>
+映射器与适配器的小结：
+ a.HandlerMapping负责建立请求与控制器间的映射关系
+   -RequestMappingHandlerMapping (与@RequestMapping匹配)
+   -WelcomePageHandlerMapping (/)
+   -BeanNameUrlHandlerMapping   (与bean的名字以/开头)
+   -RouteFunctionMapping     (函数式RequestPredicate，HandlerFunction)
+   -SimpleUrlHandlerMapping  (静态资源 通配符 /** /img/**)
+  它们之间也会有顺序问题，boot中默认顺序如上
+ b.HandlerAdapter 负责实现各种各样的handler的适配调用
+  -RequestMappingHandlerAdapter处理：@RequestMapping的方法
+  -SimpleControllerHandlerAdapter 处理：Controller接口
+  -HandlerFunctionAdapter 处理：HandlerFunction函数式接口
+  -HttpRequestHandlerAdapter 处理:HttpRequestHandler接口(静态资源处理)
+  这也是典型的适配器模式
+ c.ResourceHttpRequestHandler.setResourceResolvers这是典型的责任链模式
+</body>
+</html>

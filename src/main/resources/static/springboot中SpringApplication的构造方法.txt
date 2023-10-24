@@ -1,0 +1,28 @@
+1会根据各种来源来创建BeanDefination
+2会推断应用类型看是非web的应用程序还是Reactive的web或者servlet的web
+3使用applicationcontex初始化器做一些扩展
+4可以监听一些事件
+5可以主类推断
+在run方法中，共有十二个步骤，发布了七个事件。
+ 第一步得到 SpringApplicationRunListeners，这里名字取得不好，这玩意实际是事件发布器。
+    并通过这个事件发布器发布ApplicationStartingEvent事件。
+ 第二步封装启动 args，为后续runner的执行做准备
+ 第三步准备环境对象并添加命令行参数，这里通过调用prepareEnvironment方法进行环境对象的创建
+    prepareEnvironment方法中又间接调用了configurePropertySources方法来实现命令行Source的添加与命令行中参数的添加
+ 第四步，ConfigurationPropertySources 处理，进行一些松散绑定 将_或驼峰命名的字段统一转换为-，
+    比如说dataSource能匹配到date-source。并发布application environment事件
+ 第五步，EnvironmentPostProcessorApplicationListener 接收到application environment事件后，
+        执行之前定义的application初始化器
+ 第六步，绑定Spring.application，若配置文件中有涉及到spring.application的东西，则进行覆盖绑定。
+ 第七步，打印banner，会从resource路径下找，如果没有，则用默认的
+ 第八步创建application容器
+ 第九步，准备容器，加入环境，bean后处理器，beanfactory后处理器，并发布ApplicationContextInitializedEvent，
+ 在这里有个误区springboot调用的方法名字叫做application context prepared其实内部发的事件是初始化事件。
+ 第十步，初始化bean定义（之前SpringApplication中记录过），并发布ApplicationPreparedEvent事件，
+ 在这里也有是一样，springboot方法名有问题，springboot调用的是contextLoaded方法 内部发布的却是
+ ApplicationPreparedEvent事件。
+ 第十一步，进行refresh操作,并发布发布 application started 事件
+ 在第二步到第十一步这之中，如果出现了异常，会发布 failed事件，并由相应的listener进行处理
+ 第十二步执行runner内部会调用CommandLineRunner和ApplicationRunner封装的args参数会在ApplicationRunner中用到，
+    可以用来进行数据的一些加载
+
